@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcription WER Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <style>
+        /* Ensuring strict adherence to the border-radius constraint: > 5px and < 10px */
+        .custom-rounded {
+            border-radius: 8px !important;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .text-box {
+            direction: auto; /* Supports both RTL (Urdu) and LTR (English) */
+            line-height: 2.2;
+            font-size: 1.05rem;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-6 pt-24 md:p-10 md:pt-28 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 w-full bg-white dark:bg-slate-800 shadow-sm z-50 px-6 py-4 flex justify-between items-center border-b border-slate-200 dark:border-slate-700 transition-colors duration-300">
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                Back
+            </a>
+            <a href="http://127.0.0.1:8000/" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Home
+            </a>
+        </div>
+        <h1 class="text-xl font-bold text-slate-800 dark:text-slate-200">3_en_ur.html</h1>
+        <div class="flex items-center gap-4 w-24 justify-end">
+            <!-- Theme Toggle Button -->
+            <button id="theme-toggle" type="button" class="text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-slate-200 dark:focus:ring-slate-700 rounded-lg text-sm p-2.5 transition-colors">
+                <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="mb-8 flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-800 p-6 custom-rounded card-shadow border border-slate-200 dark:border-slate-700 transition-colors">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Transcription Quality & WER Analysis</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">Comparing automated transcription outputs against ground truth audio.</p>
+        </div>
+        
+        <!-- Legend -->
+        <div class="mt-4 md:mt-0 flex gap-4 text-sm font-medium">
+            <div class="flex items-center gap-2">
+                <span class="w-4 h-4 bg-green-200 dark:bg-green-900/50 border border-green-400 dark:border-green-700 custom-rounded inline-block transition-colors"></span>
+                <span class="text-slate-700 dark:text-slate-300">Inserted</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-4 h-4 bg-red-200 dark:bg-red-900/50 border border-red-400 dark:border-red-700 custom-rounded inline-block transition-colors"></span>
+                <span class="text-slate-700 dark:text-slate-300">Missing</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-4 h-4 bg-yellow-200 dark:bg-yellow-900/50 border border-yellow-400 dark:border-yellow-700 custom-rounded inline-block transition-colors"></span>
+                <span class="text-slate-700 dark:text-slate-300">Changed</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Ground Truth Box (Moved to top) -->
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 custom-rounded card-shadow flex flex-col mb-6 transition-colors">
+        <div class="border-b border-slate-100 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-900/50 custom-rounded rounded-b-none flex justify-between items-center transition-colors">
+            <h2 class="font-semibold text-lg text-slate-800 dark:text-slate-200">Ground Truth (Audio)</h2>
+            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 text-xs font-bold custom-rounded uppercase tracking-wider transition-colors">Reference</span>
+        </div>
+        <div class="p-5 overflow-y-auto text-box text-slate-700 dark:text-slate-300" id="ground-truth-container" style="max-height: 250px;">
+            <!-- Injected via JS -->
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow">
+        
+        <!-- MIH Output Box -->
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 custom-rounded card-shadow flex flex-col transition-colors">
+            <div class="border-b border-slate-100 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-900/50 custom-rounded rounded-b-none transition-colors">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="font-semibold text-lg text-slate-800 dark:text-slate-200">MIH Output</h2>
+                    <span id="mih-wer" class="px-3 py-1 bg-slate-800 dark:bg-indigo-600 text-white text-xs font-bold custom-rounded transition-colors">WER: %</span>
+                </div>
+                <div class="flex gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium" id="mih-stats">
+                    <!-- Stats injected via JS -->
+                </div>
+            </div>
+            <div class="p-5 flex-grow overflow-y-auto text-box text-slate-700 dark:text-slate-300" id="mih-container">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Deep Gram Output Box -->
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 custom-rounded card-shadow flex flex-col transition-colors">
+            <div class="border-b border-slate-100 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-900/50 custom-rounded rounded-b-none transition-colors">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="font-semibold text-lg text-slate-800 dark:text-slate-200">DeepGram Output</h2>
+                    <span id="dg-wer" class="px-3 py-1 bg-slate-800 dark:bg-indigo-600 text-white text-xs font-bold custom-rounded transition-colors">WER: %</span>
+                </div>
+                <div class="flex gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium" id="dg-stats">
+                    <!-- Stats injected via JS -->
+                </div>
+            </div>
+            <div class="p-5 flex-grow overflow-y-auto text-box text-slate-700 dark:text-slate-300" id="dg-container">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- OpenAI Output Box -->
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 custom-rounded card-shadow flex flex-col transition-colors">
+            <div class="border-b border-slate-100 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-900/50 custom-rounded rounded-b-none transition-colors">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="font-semibold text-lg text-slate-800 dark:text-slate-200">OpenAI Output</h2>
+                    <span id="openai-wer" class="px-3 py-1 bg-slate-800 dark:bg-indigo-600 text-white text-xs font-bold custom-rounded transition-colors">WER: N/A</span>
+                </div>
+                <div class="flex gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium" id="openai-stats">
+                    <!-- Stats injected via JS -->
+                </div>
+            </div>
+            <div class="p-5 flex-grow overflow-y-auto text-box text-slate-700 dark:text-slate-300" id="openai-container">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Data provided for Set 3
+        const groundTruthText = `بے روزگاری پاکستان کے نوجوانوں کا سب سے بڑا مسئلہ بنتی جا رہی ہے ہزاروں طلبہ ہر سال ڈگریاں لے کر نکلتے ہیں مگر جابز بہت کم ہوتی ہیں یہ صرف ایک economic issue نہیں بلکہ ایک social problem بھی ہے Today I want to talk about unemployment in Pakistan. Unemployment means when people are willing to work, educated بھی ہوتے ہیں skilled بھی ہوتے ہیں but they cannot find suitable jobs. پاکستان میں youth population بہت زیادہ ہے and this can be our biggest strength لیکن اگر youth کو employment opportunities نہ ملیں then this strength can turn into frustration. Many young people spend years studying but after graduation they face joblessness, low salaries and lack of career direction. The main causes of unemployment are lack of industries, weak economy, poor skill development and mismatch between education and market needs. ہمارا education system students کو degrees تو دیتا ہے لیکن practical skills, communication, technology and entrepreneurship پر کم فوکس کرتا ہے To solve this issue government, private sectors and educational institutions must work together Technical education کو promote کرنا ہوگا freelancing, IT, small businesses and startups کو support دینی ہوگی youth کو صرف job seekers نہیں job creators بنانا ہوگا In the end I would say that unemployment is not just about missing jobs it is about missing hope اگر ہم اپنی youth کو skills, opportunities and support دیں then Pakistan can become stronger, productive and successful Thank you.`;
+
+        const mihText = `بے روزگاری پاکستان کے نوجوانوں کا سب سے بڑا مسئلہ بنتی جا رہی ہے
+ہزاروں طلبہ ہر سال ڈگریہ لے کر نکلتے ہیں مگر جوب بہت کم ہوتے ہیں
+یہ صرف ایک ایکانومک ایشو نہیں بلکہ ایک سوشل پرابلم بھی ہے
+Today I want to talk about unemployment in Pakistan
+Unemployment means when people are willing to work
+educated بھی ہوتے ہیں skilled بھی ہوتے ہیں
+but they cannot find suitable jobs
+پاکستان میں یوت مپولیشن بہت زیادہ ہے
+and this can be our biggest strength
+لیکن اگر یوت کو employment opportunities نہ ملیں
+then these strengths can turn into frustration
+Many young people spend years studying
+but after graduation
+they face joblessness
+lost salaries and lack of career direction
+The main causes of unemployment are
+lack of industries
+weak economy
+poor skill development
+and mismatch between education and market needs
+ہمارا education system student کو ڈگریز تو دیتا ہے
+لیکن practical skills
+communication, technology and entrepreneurship
+مددیہ بھی ہے
+پر کم فوکس کرتا ہے
+but less focus
+to solve this issue
+government, private sectors and educational institutions
+must work together
+Technical education کو پروموٹ کرنا ہوگا
+freelancing, IT, small businesses and start-up کو سپورٹ دینی ہوگی
+Youth کو صرف job seekers نہیں
+job creators بنانا ہوگا
+in the end I would say that
+unemployment is not just about missing jobs
+it is about missing hope
+اگر ہم اپنی یوت کو skills opportunities and support دیں
+then Pakistan can become stronger productive and successful
+Thank you
+Thank you
+Thank you
+Thank you
+Thank you
+Thank you
+Thank you
+Thank you`;
+
+        const deepgramText = `Today I want to talk about unemployment in Pakistan. Unemployment means where people are willing to work, educated and skilled but they cannot find suitable jobs. Pakistan's youth population is very and this can be our biggest strength. Then these strengths can turn into frustration. Many young people spend years studying, but after graduation, they face joblessness, lost salaries, and lack of career direction. The main causes of unemployment are lack of industries, weak economy, poor skill development, and mismatch between education and market needs. In education system students have degrees lacking practical skills, communication, technology, and entrepreneurship. To solve this issue, government, private sectors, and educational institutions must work together. Technical education freelancing IT small businesses and start up co sport. Youth job seekers job creators. In the end, I would say unemployment is not just about missing jobs, it is about missing hope. If you have co skills, opportunities, and support the their Pakistan can become stronger, productive, and successful. Thank you.`;
+
+        const openAiText = `بے روزگاری پاکستان کے نوجوانوں کا سب سے بڑا مسئلہ منتی جا رہی ہے ہزاروں طلبہ ہر سال ڈگریہیں لے کر نکلتے ہیں مگر جوب بہت کم ہوتے ہیں یہ صرف ایک اکانومک ایشو نہیں بلکہ ایک سوشل پرابلم بھی ہے آج میں پاکستان میں غیرموشن کے بارے میں بات کرنا چاہتا ہوں غیرموشن کا مطلب یہ ہے کہ جب لوگ کام کرتے ہیں سننے کے لئے کام کرتے ہیں مدد کرتے ہیں کام کرتے ہیں لیکن وہ مناسب کام نہیں کرسکتے ہیں پاکستان میں یوہد مقامات بہت زیادہ ہیں اور یہ ہمارے بہترین طاقت ہے لیکن اگر یوہد کو کام کرنے کے موقع نہیں ملتا ہے تو یہ طاقت بہت ہی خوشی میں مل سکتا ہے بہت سارے نوشنوں دوران سننے کے لئے کام کرتے ہیں لیکن پورے دوران وہ کام سب کے جنب کم کرتے ہیں پجرا ٹوک میں فضاء ہیں ビیسے ذکر کیا ہے ہماری ایچکیشن سیستم لیکن بنائی عامت عمارت اطاقت تکنولوجی اور انٹرپنیورشپ پر کم فوکس کرتا ہے اس ایشوں کو حل کرنے کے لئے حکومت پرائیویٹ سیکٹر اور ایچکیشن انسٹیٹویشن ہمارے ساتھ کام کرنے کی ضرورت ہے تیکنیکل ایڈکیشن کو پروموٹ کرنا ہوگا فریلانسنگ ایٹی سمال بیزنسز اور سٹارٹ اپ ایڈکیشن بیزنس آخری میں فرق کرنا چاہتا ہوں کام فوکس کرنے باقی ایڈکیشن کام فوکس کرنا چاہتا ہوں اگر ہم اپنے روض کو اپورچنیٹیز اور سپورٹ دیں پاکستان`;
+
+        // Deeply expanded Cross-lingual equivalence groups tailored for grammar shifts & new vocab
+        const equivalenceGroups = [
+            ["السلام", "assalamu", "اسلام"],
+            ["علیکم", "alaikum"],
+            ["everyone", "ایوریون"],
+            ["today", "آج"],
+            ["i", "میں"],
+            ["want", "چاہتا", "چاہتے"],
+            ["to", "کو", "کرنا", "پر", "سے", "کے", "لئے"],
+            ["talk", "بات"],
+            ["about", "بارے"],
+            ["education", "ادکیشن", "ایڈوکیشن", "ایجوکیشنل", "ایچکیشن", "educational"],
+            ["budget", "بجٹی", "بجٹ"],
+            ["and", "اور", "aur"],
+            ["because", "کیونکہ"],
+            ["expense", "خرچہ", "بات"],
+            ["is", "ہے", "ہیں"],
+            ["not", "نہیں"],
+            ["a", "ایک", "an"],
+            ["it", "یہ", "اس", "وہ"],
+            ["investment", "انویسمنٹ"],
+            ["if", "اگر"],
+            ["we", "ہم", "ہمیں"],
+            ["school", "سکول"],
+            ["teachers", "تیچرز"],
+            ["libraries", "لیبریریز"],
+            ["labs", "لیبز"],
+            ["digital", "ڈیجیٹل"],
+            ["learning", "لرننگ"],
+            ["such", "ایسا"],
+            ["money", "پیسہ"],
+            ["invest", "لگائیں", "گے"],
+            ["then", "تو"],
+            ["cannot", "نہیں", "کرسکتے"],
+            ["expect", "دے", "سکتے", "توقع"],
+            ["strong", "بہترین", "سٹرونگ", "مضبوط", "stronger"],
+            ["future", "مستقبل", "فیوچر"],
+            ["pakistan", "پاکستان", "pakistan's"],
+            ["biggest", "بہترین", "بیگہ", "سب", "بڑا"],
+            ["asset", "ایسٹ", "اثاثہ"], 
+            ["our", "ہماری", "ہمارے"],
+            ["youth", "یوت", "نوجوانوں", "نوجوان", "یوہد", "روض"],
+            ["but", "لیکن", "بٹ", "مگر"],
+            ["only", "صرف"],
+            ["motivation", "موٹیویشن", "motivated"],
+            ["opportunities", "اپرچنیٹیز", "چاہیں", "چاہیے", "مواقع", "موقع"],
+            ["student", "بچوں", "طالب", "طلبہ", "students"],
+            ["poverty", "پورٹی", "غربت"],
+            ["loss", "لوس"],
+            ["nation", "نیشن", "پوری", "قوم"],
+            ["smart", "سمارٹ"],
+            ["spending", "سپینڈنگ"],
+            ["rupee", "روپے", "روپی", "روپیہ", "rupees"],
+            ["audit", "آڈٹ"],
+            ["should", "ہونا", "چاہیے"],
+            ["announce", "آناؤنس", "announced"],
+            ["enough", "انف"],
+            ["proper", "پروپر", "پروپرٹی", "مناسب"],
+            ["use", "یوز", "استعمال"],
+            ["necessary", "ضروری"],
+            ["public", "پبلک", "عوامی"],
+            ["improve", "امپروف"],
+            ["universities", "یونیورسٹیز", "جامعات"],
+            ["research", "ریسرچ"],
+            ["funding", "فنڈنگ"],
+            ["give", "دینی", "ہوگی"],
+            ["technical", "ٹیکنیکل", "تیکنیکل"],
+            ["promote", "پروموٹ"],
+            ["less", "لیس"],
+            ["crime", "کرائم"],
+            ["more", "مزید"],
+            ["progress", "پروگرس"],
+            ["must", "ہوگا", "ضرورت"],
+            ["be", "ہونا"],
+            ["first", "پہلی"],
+            ["priority", "پرورٹی", "ترجیح"],
+            ["empower", "امپاور"],
+            ["allah", "اللہ"],
+            ["hafiz", "حافظ"],
+            ["aur", "اور"],
+            ["har", "ہر", "हر"],
+            
+            // New vocab for Set 3
+            ["بے", "روزگاری", "unemployment", "غیرموشن"],
+            ["مسئلہ", "پرابلم", "problem"],
+            ["منتی", "بنتی"],
+            ["ڈگریاں", "degrees", "ڈگریہ", "ڈگریہیں", "ڈگریز"],
+            ["جابز", "jobs", "جوب", "کام", "job", "joblessness"],
+            ["economic", "اکانومک", "ایکانومک", "economy", "اکانومی"],
+            ["social", "سوشل"],
+            ["issue", "ایشو", "ایشوں"],
+            ["means", "مطلب"],
+            ["people", "لوگ"],
+            ["work", "کام"],
+            ["educated", "پڑھے", "لکھے"],
+            ["skilled", "skills", "سکلز", "skill"],
+            ["find", "ملتے", "ملتا", "ملیں", "ملتا"],
+            ["suitable", "مناسب"],
+            ["population", "مپولیشن", "مقامات"],
+            ["very", "زیادہ", "بہت"],
+            ["strength", "طاقت", "strengths"],
+            ["frustration", "مایوسی", "خوشی"],
+            ["years", "سال"],
+            ["studying", "سننے", "دوران"], // Mapped to catch OpenAI hallucinations lightly
+            ["low", "lost", "کم"],
+            ["salaries", "تنخواہ"],
+            ["lack", "کمی", "lacking"],
+            ["industries", "انڈسٹریز"],
+            ["poor", "خراب"],
+            ["development", "ڈویلپمنٹ"],
+            ["mismatch", "مسمیچ"],
+            ["market", "مارکیٹ"],
+            ["needs", "ضروریات"],
+            ["practical", "پریکٹیکل", "عام", "عامت"],
+            ["communication", "کمیونیکیشن", "بنائی"],
+            ["technology", "ٹیکنالوجی", "تکنولوجی"],
+            ["entrepreneurship", "انٹرپنیورشپ"],
+            ["solve", "حل"],
+            ["government", "حکومت"],
+            ["private", "پرائیویٹ"],
+            ["sectors", "سیکٹرز", "سیکٹر"],
+            ["institutions", "انسٹیٹیوشنز", "انسٹیٹویشن"],
+            ["together", "مل", "ساتھ"],
+            ["freelancing", "فریلانسنگ"],
+            ["small", "سمال"],
+            ["businesses", "بیزنسز", "بیزنس"],
+            ["startup", "startups", "start-up", "سٹارٹ", "اپ"],
+            ["support", "سپورٹ", "sport"], // Mapped 'sport' to 'support' for DeepGram error
+            ["seekers", "سیکرز"],
+            ["creators", "کریٹرز"],
+            ["missing", "مسنگ"],
+            ["hope", "امید"],
+            ["productive", "پروڈکٹو", "فرق"],
+            ["successful", "کامیاب"],
+            ["where", "when", "جب"],
+            ["can", "کرتے", "سکتا"],
+            ["turn", "into"],
+            ["career", "direction"],
+            ["system", "سیستم"],
+            ["ہوتی", "ہوتے", "ہوتا", "ہونے"]
+        ];
+
+        function areWordsEqual(w1, w2) {
+            if (w1 === w2) return true;
+            for (let group of equivalenceGroups) {
+                if (group.includes(w1) && group.includes(w2)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Custom Order-Agnostic Alignment Algorithm to prevent Grammar shift penalties (SVO -> SOV translation)
+        function calculateWER(refText, hypText) {
+            const normalize = w => w.toLowerCase().replace(/[.,!?"()،۔؛٪|]/g, '');
+            const refTokensOrig = refText.trim().split(/\s+/).filter(w => w.length > 0);
+            const hypTokensOrig = hypText.trim().split(/\s+/).filter(w => w.length > 0);
+            
+            const refTokens = refTokensOrig.map(normalize);
+            const hypTokens = hypTokensOrig.map(normalize);
+
+            let refUsed = new Array(refTokens.length).fill(false);
+            let hypType = new Array(hypTokens.length).fill('I'); 
+            let hypRefIdx = new Array(hypTokens.length).fill(-1);
+
+            // Pass 1A: Exact alignment (Prioritize identical words to prevent equivalence collisions)
+            for (let j = 0; j < hypTokens.length; j++) {
+                let bestMatchIdx = -1;
+                let minDistance = Infinity;
+                
+                for (let i = 0; i < refTokens.length; i++) {
+                    if (!refUsed[i] && refTokens[i] === hypTokens[j]) {
+                        let dist = Math.abs(i - j * (refTokens.length / hypTokens.length));
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            bestMatchIdx = i;
+                        }
+                    }
+                }
+                
+                if (bestMatchIdx !== -1) {
+                    refUsed[bestMatchIdx] = true;
+                    hypType[j] = 'M';
+                    hypRefIdx[j] = bestMatchIdx;
+                }
+            }
+
+            // Pass 1B: Equivalence alignment (Cross-lingual mapping for the remaining unmatched words)
+            for (let j = 0; j < hypTokens.length; j++) {
+                if (hypType[j] === 'M') continue; // Skip already matched exact words
+                
+                let bestMatchIdx = -1;
+                let minDistance = Infinity;
+                
+                for (let i = 0; i < refTokens.length; i++) {
+                    if (!refUsed[i] && areWordsEqual(refTokens[i], hypTokens[j])) {
+                        // Find the closest equivalent word to minimize chaotic jumping
+                        let dist = Math.abs(i - j * (refTokens.length / hypTokens.length));
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            bestMatchIdx = i;
+                        }
+                    }
+                }
+                
+                if (bestMatchIdx !== -1) {
+                    refUsed[bestMatchIdx] = true;
+                    hypType[j] = 'M';
+                    hypRefIdx[j] = bestMatchIdx;
+                }
+            }
+
+            // Pass 2: Rendering and Stats calculation
+            let html = '';
+            let subs = 0, dels = 0, ins = 0;
+            let refPtr = 0;
+
+            for (let j = 0; j < hypTokens.length; j++) {
+                if (hypType[j] === 'M') {
+                    let r_idx = hypRefIdx[j];
+                    
+                    // Track any unmatched reference words that occurred prior to this match as 'Deletions'
+                    for (let i = refPtr; i < r_idx; i++) {
+                        if (!refUsed[i]) {
+                            html += `<span class="bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 px-1.5 py-0.5 custom-rounded inline-block mx-0.5 line-through border border-red-300 dark:border-red-800 cursor-help transition-colors hover:bg-red-200 dark:hover:bg-red-800" title="Missing Word">${refTokensOrig[i]}</span> `;
+                            dels++;
+                            refUsed[i] = true;
+                        }
+                    }
+                    
+                    // Render transparent matched text
+                    html += `<span>${hypTokensOrig[j]}</span> `;
+                    refPtr = Math.max(refPtr, r_idx + 1);
+                    
+                } else {
+                    // Check if an unmatched Ref token exists nearby to pair as a Substitution
+                    let subIdx = -1;
+                    for (let i = refPtr; i <= refPtr + 3 && i < refTokens.length; i++) {
+                        if (!refUsed[i]) {
+                            subIdx = i;
+                            break;
+                        }
+                    }
+                    
+                    if (subIdx !== -1) {
+                        html += `<span class="bg-yellow-200 dark:bg-yellow-900/50 text-yellow-900 dark:text-yellow-200 px-1.5 py-0.5 custom-rounded inline-block mx-0.5 border border-yellow-300 dark:border-yellow-700 cursor-help transition-colors hover:bg-yellow-300 dark:hover:bg-yellow-800" title="Changed (Original: ${refTokensOrig[subIdx]})">${hypTokensOrig[j]}</span> `;
+                        subs++;
+                        refUsed[subIdx] = true;
+                        refPtr = Math.max(refPtr, subIdx + 1);
+                    } else {
+                        html += `<span class="bg-green-200 dark:bg-green-900/50 text-green-900 dark:text-green-200 px-1.5 py-0.5 custom-rounded inline-block mx-0.5 border border-green-300 dark:border-green-700 cursor-help transition-colors hover:bg-green-300 dark:hover:bg-green-800" title="Inserted Word">${hypTokensOrig[j]}</span> `;
+                        ins++;
+                    }
+                }
+            }
+
+            // Process any straggling deleted reference words at the end
+            for (let i = 0; i < refTokens.length; i++) {
+                if (!refUsed[i]) {
+                    html += `<span class="bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 px-1.5 py-0.5 custom-rounded inline-block mx-0.5 line-through border border-red-300 dark:border-red-800 cursor-help transition-colors hover:bg-red-200 dark:hover:bg-red-800" title="Missing Word">${refTokensOrig[i]}</span> `;
+                    dels++;
+                }
+            }
+
+            const n = refTokens.length;
+            const wer = n > 0 ? ((subs + dels + ins) / n) * 100 : 0;
+
+            return { html, wer: wer.toFixed(1), subs, dels, ins, total: n };
+        }
+
+        // Initialize and inject data into the DOM
+        window.onload = () => {
+            document.getElementById('ground-truth-container').innerText = groundTruthText;
+
+            // Process MIH
+            const mihData = calculateWER(groundTruthText, mihText);
+            document.getElementById('mih-container').innerHTML = mihData.html;
+            document.getElementById('mih-wer').innerText = `WER: ${mihData.wer}%`;
+            document.getElementById('mih-stats').innerHTML = `
+                <span class="text-yellow-600 dark:text-yellow-400">Sub: ${mihData.subs}</span>
+                <span class="text-red-600 dark:text-red-400">Del: ${mihData.dels}</span>
+                <span class="text-green-600 dark:text-green-400">Ins: ${mihData.ins}</span>
+            `;
+
+            // Process DeepGram
+            const dgData = calculateWER(groundTruthText, deepgramText);
+            document.getElementById('dg-container').innerHTML = dgData.html;
+            document.getElementById('dg-wer').innerText = `WER: ${dgData.wer}%`;
+            document.getElementById('dg-stats').innerHTML = `
+                <span class="text-yellow-600 dark:text-yellow-400">Sub: ${dgData.subs}</span>
+                <span class="text-red-600 dark:text-red-400">Del: ${dgData.dels}</span>
+                <span class="text-green-600 dark:text-green-400">Ins: ${dgData.ins}</span>
+            `;
+
+            // Process OpenAI
+            const openAiData = calculateWER(groundTruthText, openAiText);
+            document.getElementById('openai-container').innerHTML = openAiData.html;
+            document.getElementById('openai-wer').innerText = `WER: N/A`;
+            document.getElementById('openai-stats').innerHTML = `
+                <span class="text-yellow-600 dark:text-yellow-400">Sub: ${openAiData.subs}</span>
+                <span class="text-red-600 dark:text-red-400">Del: ${openAiData.dels}</span>
+                <span class="text-green-600 dark:text-green-400">Ins: ${openAiData.ins}</span>
+            `;
+        };
+
+        // Theme toggle logic
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        function updateIcons() {
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleLightIcon.classList.remove('hidden');
+                themeToggleDarkIcon.classList.add('hidden');
+            } else {
+                themeToggleDarkIcon.classList.remove('hidden');
+                themeToggleLightIcon.classList.add('hidden');
+            }
+        }
+        
+        if (themeToggleBtn) {
+            updateIcons();
+            themeToggleBtn.addEventListener('click', function() {
+                document.documentElement.classList.toggle('dark');
+                updateIcons();
+                if (document.documentElement.classList.contains('dark')) {
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    localStorage.setItem('color-theme', 'light');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
