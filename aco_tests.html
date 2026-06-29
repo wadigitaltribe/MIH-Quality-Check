@@ -38,6 +38,10 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">ACO Tests</h1>
         </div>
         <div class="flex items-center gap-3">
+            <button id="back-btn" type="button" onclick="goBack()" class="hidden items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                Back
+            </button>
             <a href="index.html" class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm transition-colors">
                 <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
                 Home
@@ -51,32 +55,161 @@
 
     <main class="flex-grow flex flex-col items-center justify-center px-6">
         <div class="max-w-4xl w-full relative">
-            <header class="mb-12 text-center relative z-10">
-                <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">
-                    ACO <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Quality Reports</span>
-                </h2>
-                <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-light">Select an ACO transcription report below.</p>
-            </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-                <a href="aco-english-wer-report.html" class="glass-card rounded-2xl p-6 group flex items-start gap-5 cursor-pointer decoration-transparent">
-                    <div class="icon-wrapper w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center">
-                        <svg class="h-7 w-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-xl font-semibold text-slate-800 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">ACO Pure English Transcription Test</h3>
-                        <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">WER analysis for 10 ACO pure-English meeting transcription samples.</p>
-                        <div class="flex items-center text-xs font-medium text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                            View Report
-                            <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <!-- Main hub -->
+            <div id="view-main">
+                <header class="mb-12 text-center relative z-10">
+                    <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">
+                        ACO <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Quality Reports</span>
+                    </h2>
+                    <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-light">Select an ACO transcription report below.</p>
+                </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 max-w-3xl mx-auto">
+                    <a href="aco-english-wer-report.html" class="glass-card rounded-2xl p-6 group flex items-start gap-5 cursor-pointer decoration-transparent">
+                        <div class="icon-wrapper w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center">
+                            <svg class="h-7 w-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
-                    </div>
-                </a>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-xl font-semibold text-slate-800 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">ACO Pure English Transcription Test</h3>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">WER analysis for 10 ACO pure-English meeting transcription samples.</p>
+                            <div class="flex items-center text-xs font-medium text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                View Report
+                                <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                        </div>
+                    </a>
+                    <button type="button" onclick="showView('abusing')" class="glass-card rounded-2xl p-6 group flex items-start gap-5 cursor-pointer text-left w-full">
+                        <div class="icon-wrapper w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center">
+                            <svg class="h-7 w-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-xl font-semibold text-slate-800 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">ACO Abusing Words Test</h3>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">System evaluation, abusive language audit, and WER analysis.</p>
+                            <div class="flex items-center text-xs font-medium text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                Open Options
+                                <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                        </div>
+                    </button>
+                </div>
             </div>
+
+            <!-- Abusing words sub-hub -->
+            <div id="view-abusing" class="hidden">
+                <header class="mb-12 text-center relative z-10">
+                    <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">
+                        ACO <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Abusing Words Test</span>
+                    </h2>
+                    <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-light">Choose abusing audit or WER transcription reports.</p>
+                </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 max-w-3xl mx-auto">
+                    <a href="aco_abusing_test.html" class="glass-card rounded-2xl p-6 group flex items-start gap-5 cursor-pointer decoration-transparent">
+                        <div class="icon-wrapper w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center">
+                            <svg class="h-7 w-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-3 mb-2">
+                                <h3 class="text-xl font-semibold text-slate-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Abusing Tests</h3>
+                                <span class="flex-shrink-0 text-xs font-extrabold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Abusing</span>
+                            </div>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">System evaluation and abusive language audit report.</p>
+                            <div class="flex items-center text-xs font-medium text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                View Report
+                                <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                        </div>
+                    </a>
+                    <button type="button" onclick="showView('wer')" class="glass-card rounded-2xl p-6 group flex items-start gap-5 cursor-pointer text-left w-full">
+                        <div class="icon-wrapper w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center">
+                            <svg class="h-7 w-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-xl font-semibold text-slate-800 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">WER Tests</h3>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">Transcription WER analysis reports for abusing test samples.</p>
+                            <div class="flex items-center text-xs font-medium text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                Open Reports
+                                <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- WER sub-hub -->
+            <div id="view-wer" class="hidden">
+                <header class="mb-12 text-center relative z-10">
+                    <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">
+                        ACO <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">WER Tests</span>
+                    </h2>
+                    <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-light">Select a transcription WER report.</p>
+                </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 max-w-3xl mx-auto">
+                    <a href="aco-wer1-report.html" class="glass-card rounded-2xl p-6 group flex items-start gap-5 cursor-pointer decoration-transparent">
+                        <div class="icon-wrapper w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center">
+                            <svg class="h-7 w-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-3 mb-2">
+                                <h3 class="text-xl font-semibold text-slate-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">ACO Abusive Language WER Test</h3>
+                                <span class="flex-shrink-0 text-xs font-extrabold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">WER1</span>
+                            </div>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">WER analysis for 4 ACO abusive-language transcription samples.</p>
+                            <div class="flex items-center text-xs font-medium text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                View Report
+                                <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="aco-wer2-report.html" class="glass-card rounded-2xl p-6 group flex items-start gap-5 cursor-pointer decoration-transparent">
+                        <div class="icon-wrapper w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center">
+                            <svg class="h-7 w-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-3 mb-2">
+                                <h3 class="text-xl font-semibold text-slate-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">ACO Abusing Test WER Analysis</h3>
+                                <span class="flex-shrink-0 text-xs font-extrabold px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">WER2</span>
+                            </div>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">WER analysis with MOM comparison for 4 ACO abusing test samples.</p>
+                            <div class="flex items-center text-xs font-medium text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                View Report
+                                <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
         </div>
     </main>
 
     <script>
+        let currentView = 'main';
+
+        function showView(view) {
+            document.getElementById('view-main').classList.add('hidden');
+            document.getElementById('view-abusing').classList.add('hidden');
+            document.getElementById('view-wer').classList.add('hidden');
+            document.getElementById('view-' + view).classList.remove('hidden');
+            currentView = view;
+            updateBackButton();
+        }
+
+        function goBack() {
+            if (currentView === 'wer') showView('abusing');
+            else if (currentView === 'abusing') showView('main');
+        }
+
+        function updateBackButton() {
+            const btn = document.getElementById('back-btn');
+            if (currentView === 'main') {
+                btn.classList.add('hidden');
+                btn.classList.remove('inline-flex');
+            } else {
+                btn.classList.remove('hidden');
+                btn.classList.add('inline-flex');
+            }
+        }
+
         const d = document.getElementById('theme-toggle-dark-icon');
         const l = document.getElementById('theme-toggle-light-icon');
         const b = document.getElementById('theme-toggle');
