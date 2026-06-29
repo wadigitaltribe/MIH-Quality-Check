@@ -172,6 +172,11 @@ document.getElementById('theme-toggle').addEventListener('click', ()=>{
   syncIcons();
 });
 
+function sampleMode(id){ return id <= 3 ? 'Offline' : 'Online'; }
+function modeTagHtml(mode){
+  return `<span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">${mode}</span>`;
+}
+
 // ── routing ────────────────────────────────────────────────────────────────────
 function showDashboard(){
   document.getElementById('dashboard').classList.remove('hidden');
@@ -197,6 +202,7 @@ function showDetail(id){
 
   const isRoman = (((s.script === 'roman' || s.script === 'mixed') || s.script === 'mixed') || s.script === 'mixed');
   const statsHtml = `
+    <span class="stat-pill bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">${sampleMode(s.id)}</span>
     <span class="stat-pill bg-slate-100 dark:bg-slate-800 ${s.tc}">WER: ${s.wer}%</span>
     <span class="stat-pill bg-slate-100 dark:bg-slate-800">Ref: ${s.ref_wc} words</span>
     <span class="stat-pill bg-slate-100 dark:bg-slate-800">Hyp: ${s.hyp_wc} words</span>
@@ -241,9 +247,12 @@ function renderDashboard(){
         <span class="text-xs font-semibold px-2 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300">
           Sample ${s.id}
         </span>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          ${modeTagHtml(sampleMode(s.id))}
         ${s.script==='urdu'
           ? '<span class="text-xs px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">Cross-script</span>'
           : ''}
+        </div>
       </div>
       <h3 class="text-sm font-semibold text-slate-800 dark:text-white mb-3 leading-snug
                  group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
